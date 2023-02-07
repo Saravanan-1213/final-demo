@@ -1,5 +1,5 @@
 .App {
-  text-align: center;
+  /* text-align: center; */
 }
 
 .phone-picture {
@@ -44,4 +44,12 @@ body {
   justify-content: center;
   gap: 24px;
   margin: 24px;
+}
+
+.login-form{
+  display: flex;
+  flex-direction: column;
+  gap:16px;
+  max-width: 400px;
+  margin:0 auto;
 }
