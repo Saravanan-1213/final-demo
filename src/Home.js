@@ -3,6 +3,7 @@ import TextField from "@mui/material/TextField";
 import { useFormik } from "formik";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API } from "./global";
 
 export function Home() {
   return (
