@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { Routes, Route, Link, Navigate } from "react-router-dom";
-import { Home } from "./Home";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { Home, LoginForm } from "./Home";
+import { Phone } from "./Phone";
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
       {/* <ProtectedRoute /> */}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<LoginForm />} />
         <Route
           path="/mobiles"
           element={
@@ -27,38 +29,44 @@ function ProtectedRoute({ children }) {
   return isAuth ? children : <Navigate replace to="/" />;
 }
 
+export function checkAuth(data) {
+  if (data.status == 401) {
+    console.log("UnAuthorized");
+    throw Error("UnAuthorized");
+  } else {
+    return data.json();
+  }
+}
+
+export function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "/";
+}
+
 function PhoneList() {
   const [mobiles, setMobiles] = useState([]);
 
-  useEffect(() => {
-    fetch("http://localhost:4000/mobiles")
-      .then((data) => data.json())
-      .then((mbs) => setMobiles(mbs));
-  }, []);
+  const getMobiles = () => {
+    // protected api using x-auth-token
+    fetch("http://localhost:4000/mobiles", {
+      method: "GET",
+      headers: {
+        "x-auth-token": localStorage.getItem("token"),
+      },
+    })
+      .then((data) => checkAuth(data))
+      .then((mbs) => setMobiles(mbs))
+      .catch((err) => logout());
+  };
+  useEffect(() => getMobiles(), []);
 
   return (
     <div className="phone-list-container">
       {mobiles.map((mb, index) => (
-        <Phone key={index} mobile={mb} />
+        <Phone key={index} mobile={mb} getMobiles={getMobiles} />
       ))}
     </div>
   );
 }
 
-// object destructring
-function Phone({ mobile }) {
-  // object destructring
-  // const mobile = {
-  //   model: "OnePlus 9 5G",
-  //   img: "https://m.media-amazon.com/images/I/61fy+u9uqPL._SX679_.jpg",
-  //   company: "Oneplus",
-  // };
-  return (
-    <div className="phone-container">
-      <img src={mobile.img} alt={mobile.model} className="phone-picture" />
-      <h2 className="phone-name">{mobile.model}</h2>
-      <p className="phone-company">{mobile.company}</p>
-    </div>
-  );
-}
 export default App;
